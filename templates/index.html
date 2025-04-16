@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindEaseAI - Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" defer></script>
+</head>
+<body>
+    <section class="chat-container">
+        <header class="chat-header">
+            <div class="header-title">
+                <i class="fas fa-robot"></i> MindEaseAI <i class="fas fa-robot"></i>
+            </div>
+        </header>
+        <main class="chat-box">
+            <div class="msg left-msg">
+                <div class="msg-img" style="background-image: url('https://i.ibb.co/d0zY77VG/AIimage.jpg');"></div>
+                <div class="msg-bubble">
+                    <div class="msg-info">
+                        <span class="msg-name">MindEaseAI</span>
+                        <span class="msg-time" id="initial-bot-time"></span>
+                    </div>
+                    <p class="msg-text">Hi! I'm MindEaseAI🧠, your holistic health assistant. 😊</p>
+                </div>
+            </div>
+        </main>
+        <form class="chat-input-area">
+            <input type="text" class="chat-input" id="textInput" placeholder="Type a message...">
+            <button type="submit" class="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </section>
+    <script>
+        const BOT_IMG = "https://i.ibb.co/d0zY77VG/AIimage.jpg";
+        const USER_IMG = "https://i.ibb.co/19nNKSv/Download-premium-png-of-User-account-icon-png-sticker-transparent-background-by-Teddy-about-user-ico.jpg";
+        const BOT_NAME = "MindEaseAI";
+        const USER_NAME = "You";
+        
+        document.getElementById("initial-bot-time").innerText = formatDate(new Date());
+        
+        document.querySelector(".chat-input-area").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const msgText = document.getElementById("textInput").value.trim();
+            if (!msgText) return;
+            appendMessage(USER_NAME, USER_IMG, "right", msgText);
+            document.getElementById("textInput").value = "";
+            botResponse(msgText);
+        });
+        
+        function appendMessage(name, img, side, text) {
+            const msgHTML = `
+                <div class="msg ${side}-msg">
+                    <div class="msg-img" style="background-image: url('${img}');"></div>
+                    <div class="msg-bubble">
+                        <p class="msg-text">${text}</p>
+                        <span class="msg-time">${formatDate(new Date())}</span>
+                    </div>
+                </div>`;
+            document.querySelector(".chat-box").insertAdjacentHTML("beforeend", msgHTML);
+            document.querySelector(".chat-box").scrollTop = document.querySelector(".chat-box").scrollHeight;
+        }
+        
+        function botResponse(rawText) {
+            $.get("/get", { msg: rawText }).done(function(data) {
+                appendMessage(BOT_NAME, BOT_IMG, "left", data);
+            }).fail(function() {
+                appendMessage(BOT_NAME, BOT_IMG, "left", "Sorry, something went wrong!");
+            });
+        }
+        
+        function formatDate(date) {
+            const hours = `0${date.getHours()}`.slice(-2);
+            const minutes = `0${date.getMinutes()}`.slice(-2);
+            return `${hours}:${minutes}`;
+        }
+    </script>
+</body>
+</html>
